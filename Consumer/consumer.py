@@ -28,6 +28,7 @@ def video_feed():
         get_video_stream(), 
         mimetype='multipart/x-mixed-replace; boundary=frame')
 
+# after this edit it using neural net
 def get_video_stream():
     """
     Here is where we recieve streamed images from the Kafka Server and convert 

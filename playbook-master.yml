@@ -1,0 +1,66 @@
+---
+- name: "Play 1: Create VMs"
+  hosts: MyLocalVMs         
+  remote_user: ubuntu       
+
+  tasks:   
+  - name: Install openstacksdk
+    apt: name=python3-openstacksdk state=latest
+    become: yes
+
+  - include_tasks: tasks/create_vm.yml
+  - name: Waiting
+    pause:
+      seconds: 60
+
+- name: "Play 2: Install Docker"
+  hosts: MyChameleon
+  remote_user: cc
+  become: yes
+
+  tasks:
+  - include_tasks: tasks/install_docker.yml
+
+- name: "Play 3: Install K8S"
+  hosts: MyChameleon
+  remote_user: cc
+  become: yes
+
+  tasks:
+  - include_tasks: tasks/install_k8s.yml
+
+- name: "Initialize master, Create Registry, Build and Push images"
+  hosts: MyChameleon
+  remote_user: cc
+  become: yes
+
+  tasks:
+  - include_tasks: tasks/init_master_node.yml
+  - include_tasks: tasks/create_docker_registry.yml
+
+- name: "Initialize master, Create Registry, Build and Push images"
+  hosts: Mykubemaster
+  remote_user: cc
+  become: yes
+
+  tasks:
+  - include_tasks: tasks/create_push_image.yml
+
+- name: "Run kafka and couchdb"
+  hosts: Mykubemaster
+  remote_user: cc
+  become: yes
+
+  tasks:
+  - include_tasks: tasks/exec_kafka.yml
+  - include_tasks: tasks/exec_couchdb.yml
+
+# - name: "Play 7: Run consumer and producer"
+#  hosts: MyChameleon
+#  remote_user: cc
+#  become: yes
+
+#  tasks:
+#  - include_tasks: tasks/start_consumer.yml
+...
+

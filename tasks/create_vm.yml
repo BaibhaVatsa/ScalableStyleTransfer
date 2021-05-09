@@ -1,0 +1,23 @@
+---
+  - name: Create VMs
+    openstack.cloud.server:
+      state: present
+      name: "{{ item.name }}"
+      image: CC-Ubuntu18.04
+      key_name: a_key
+      timeout: 300
+      flavor: "{{ item.flavor }}"
+      nics:
+        - net-name: CH-819381-net
+      security_groups:
+        - 667273fd-a67a-4ca2-8a68-3088220e6374
+        - 7e09e9fd-4971-49bb-bd55-9aa2fa149b16
+        - "ENABLE_KAFKA_COUCHDB"
+        - "ENABLE_K8S"
+        # - "ENABLE_ZMQ_APPS"
+      floating_ips:
+        - "{{ item.fip }}"
+    loop:
+      - { name: "Team_An_Baibhav_1", fip: 129.114.26.148, flavor: "m1.medium" }
+      - { name: "Team_An_Baibhav_2", fip: 129.114.26.151, flavor: "m1.small" }
+...

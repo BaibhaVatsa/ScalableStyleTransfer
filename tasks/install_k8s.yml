@@ -1,0 +1,62 @@
+---
+- name: Add key to key ring
+  shell: sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
+- name: Add kubernetes repo to source list 
+  shell: echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+- name: Install k8s
+  apt:
+    update_cache: yes  ### update apt for local repo
+    name:
+    - kubeadm
+    - kubelet
+    - kubectl
+    - kubernetes-cni
+    - jq
+
+- name: Waiting
+  pause:
+    seconds: 10
+
+- name: Configure Kubernetes
+  command: sudo swapoff -a  
+
+- name: Set ufw rules for kubernetes
+  command: "ufw allow {{item}}"
+  with_items:
+  # k8s
+    - 2379:2380/tcp
+    - 5000/tcp
+    - 6443/tcp
+    - 8001/tcp
+    - 10250:10252/tcp
+    # kafka outside
+    - 30000:30006/tcp
+    # flannel
+    - 8285/udp
+    - 8472/udp
+    # - 5555:5559/tcp cause belongs to zmq
+    # kafka inside
+    - 2181/tcp
+    - 9092/tcp
+    # couchdb inside 
+    - 5984/tcp
+
+- name: Add to /etc/hosts
+  lineinfile: 
+    path: /etc/hosts
+    line: 129.114.26.148 Team_An_Baibhav_1 kubemaster kubeworker1
+  when: inventory_hostname == "129.114.26.148"
+
+- name: Add to /etc/hosts
+  lineinfile: 
+    path: /etc/hosts
+    line: 129.114.26.151 Team_An_Baibhav_2 kubeworker2
+  when: inventory_hostname == "129.114.26.151"
+
+- name: Copy k8s files
+  ansible.builtin.copy:
+    src: /vagrant/k8s
+    dest: /home/cc
+...

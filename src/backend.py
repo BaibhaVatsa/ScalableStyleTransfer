@@ -3,7 +3,7 @@ import json
 import requests
 
 ip = "129.59.122.134"
-producer = KafkaProducer(bootstrap_servers=ip+":9092", acks=1, value_serializer = lambda v: json.dumps(v).encode('utf-8'))
+producer = KafkaProducer(bootstrap_servers=ip+":9062", acks=1, value_serializer = lambda v: json.dumps(v).encode('utf-8'))
 
 consumer = KafkaConsumer(bootstrap_servers=ip+":9092", api_version=(0,10,1), value_deserializer=lambda m: json.loads(m.decode('utf-8')))
 consumer.subscribe('getResultUrl')
@@ -21,14 +21,10 @@ def style_transfer(styleUrl, imageUrl):
 
 while True:
     for msg in consumer:
-        print(msg.value)
-        print(msg.value['imageUrl'])
-        print(msg.value['styleUrl'])
         resultUrl = style_transfer(msg.value['styleUrl'], msg.value['imageUrl'])['output_url']
         producer.send('postResultUrl', {'resultUrl': resultUrl})
         producer.flush()
-        print('sent bby')
 
-producer.close ()
+producer.close()
 consumer.close()
 

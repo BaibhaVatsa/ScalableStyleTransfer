@@ -5,7 +5,7 @@ import json
 
 app = Flask(__name__)
 
-ip = "localhost"
+ip = "35.172.203.159"
 producer = KafkaProducer(bootstrap_servers=ip+":9092", acks=1, value_serializer = lambda v: json.dumps(v).encode('utf-8'))
 
 consumer = KafkaConsumer(bootstrap_servers=ip+":9062", api_version=(0,10,1), value_deserializer=lambda m: json.loads(m.decode('utf-8')))
